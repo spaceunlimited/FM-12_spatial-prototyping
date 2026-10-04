@@ -1,0 +1,25 @@
+# Keys and local secrets. Never commit these.
+.env
+.env.*
+!.env.example
+
+# Dev server state
+.dev-url
+.cert/
+node_modules/
+dist/
+.vite/
+
+# Tests
+test-results/
+playwright-report/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# Diagnostics posted from devices via /check
+.diag/

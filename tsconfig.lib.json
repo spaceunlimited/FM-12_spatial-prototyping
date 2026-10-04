@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": true,
+    "types": ["vite/client", "@types/three", "node"]
+  },
+  "include": ["src/blocks", "src/runtime", "server", "test", "vite.config.ts"],
+  "exclude": ["src/runtime/vendor/_pending"]
+}

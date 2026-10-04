@@ -1,0 +1,34 @@
+/* Scaffold base styles. Full-screen camera feed under a transparent 3D canvas, plus an overlay layer for system UI. */
+html, body { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; touch-action: none; -webkit-user-select: none; user-select: none; font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif; }
+#app { position: fixed; inset: 0; }
+#camera-feed { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #000; display: none; }
+#camera-feed.active { display: block; }
+#scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#overlay { position: absolute; inset: 0; pointer-events: none; }
+#overlay > * { pointer-events: auto; }
+body.simulated { background: radial-gradient(ellipse at 50% 30%, #4a5568 0%, #1a202c 60%, #0d1117 100%); }
+body.simulated #camera-feed { display: none; }
+
+.mr-start { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: rgba(0,0,0,0.72); color: #fff; text-align: center; padding: 32px; }
+.mr-start h1 { font-size: 24px; font-weight: 600; margin: 0; }
+.mr-start p { margin: 0; opacity: 0.8; max-width: 320px; line-height: 1.4; font-size: 15px; }
+.mr-start button { margin-top: 12px; font-size: 18px; font-weight: 600; padding: 16px 32px; border-radius: 999px; border: 0; background: #fff; color: #111; }
+.mr-start button:active { transform: scale(0.97); }
+.mr-start button[disabled] { opacity: 0.6; }
+.mr-start .mr-profile { font-size: 12px; opacity: 0.55; margin-top: 18px; }
+/* What the device could not do, said before the viewer starts rather than after. */
+.mr-start .mr-note { font-size: 13px; opacity: 0.7; border-left: 2px solid rgba(255,209,102,0.8); padding-left: 10px; text-align: left; }
+.mr-start .mr-error { font-size: 14px; color: #ffd166; max-width: 320px; }
+/* Switch device version without typing a URL — a headset keyboard is no place to be. */
+.mr-start .mr-alt { font-size: 14px; color: rgba(255,255,255,0.75); text-decoration: underline; margin-top: 2px; }
+
+/* In an AR session the real room is the background; the phone's own camera feed is not used. */
+body.xr-session #camera-feed { display: none; }
+body.xr-session .mr-reticle { display: none; }
+
+/* Never in the way of a tap: on phone AR this layer sits inside the session as a DOM overlay. */
+.mr-toast { pointer-events: none; position: absolute; left: 50%; bottom: max(24px, env(safe-area-inset-bottom)); transform: translateX(-50%); background: rgba(20,20,25,0.85); color: #fff; padding: 10px 16px; border-radius: 12px; font-size: 14px; max-width: 86vw; line-height: 1.35; opacity: 0; transition: opacity .25s; }
+.mr-toast.show { opacity: 1; }
+
+.mr-reticle { position: absolute; left: 50%; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border: 1.5px solid rgba(255,255,255,0.7); border-radius: 50%; pointer-events: none; }
+.mr-reticle.hot { border-color: #ffd166; transform: scale(1.4); }

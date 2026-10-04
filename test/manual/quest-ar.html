@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Spike S2/S3 · Quest AR</title>
+<style>body{margin:0;background:#000;color:#fff;font:15px system-ui}#log{position:fixed;left:0;top:0;padding:10px;white-space:pre-wrap;max-width:100vw;pointer-events:none}button{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);font-size:20px;padding:14px 28px;border-radius:999px;border:0}</style></head>
+<body><pre id="log"></pre><button id="enter">Enter AR</button>
+<script type="module">
+// Compatibility spike for Quest 3 / Android: plain three.js immersive-ar with optional features.
+// Logs what the browser granted, places a cube on pinch/select via hit-test, posts results to /api/diag.
+import * as THREE from 'three';
+const log = (s) => { document.getElementById('log').textContent += s + '\n'; console.log(s); };
+const r = { spike: 'quest-ar', ua: navigator.userAgent.slice(0, 100), secure: isSecureContext, xr: !!navigator.xr };
+log(`secureContext=${isSecureContext} navigator.xr=${!!navigator.xr}`);
+if (navigator.xr) { r.ar = await navigator.xr.isSessionSupported('immersive-ar'); log(`immersive-ar supported=${r.ar}`); }
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true }); renderer.xr.enabled = true; renderer.setSize(innerWidth, innerHeight); document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene(); const camera = new THREE.PerspectiveCamera(); scene.add(new THREE.HemisphereLight(0xffffff, 0x444466, 1.2));
+const reticle = new THREE.Mesh(new THREE.RingGeometry(0.06, 0.08, 32).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0xffd166 })); reticle.visible = false; reticle.matrixAutoUpdate = false; scene.add(reticle);
+const joints = new THREE.Group(); scene.add(joints);
+document.getElementById('enter').onclick = async () => {
+  const opts = { requiredFeatures: ['local-floor'], optionalFeatures: ['hit-test', 'hand-tracking', 'plane-detection', 'anchors', 'depth-sensing', 'dom-overlay'], domOverlay: { root: document.body } };
+  let session;
+  try { session = await navigator.xr.requestSession('immersive-ar', opts); } catch (e) { log('requestSession failed: ' + e.message); r.session = 'fail: ' + e.message; post(); return; }
+  r.session = 'ok'; r.enabledFeatures = session.enabledFeatures ? [...session.enabledFeatures] : 'n/a'; log('enabledFeatures=' + JSON.stringify(r.enabledFeatures));
+  r.domOverlay = !!session.domOverlayState; log('domOverlayState=' + JSON.stringify(session.domOverlayState || null));
+  renderer.xr.setReferenceSpaceType('local-floor'); await renderer.xr.setSession(session);
+  const viewer = await session.requestReferenceSpace('viewer');
+  let hitSource = null; try { hitSource = await session.requestHitTestSource({ space: viewer }); r.hitTest = true; } catch (e) { r.hitTest = 'fail: ' + e.message; } log('hit-test=' + r.hitTest);
+  session.addEventListener('select', () => { if (reticle.visible) { const c = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshStandardMaterial({ color: 0x8ecae6 })); c.position.setFromMatrixPosition(reticle.matrix); c.position.y += 0.05; scene.add(c); r.placed = (r.placed || 0) + 1; log('placed cube #' + r.placed); } });
+  session.addEventListener('inputsourceschange', (e) => { for (const s of e.added) { log(`input: ${s.handedness} ${s.targetRayMode} hand=${!!s.hand}`); if (s.hand) r.hands = true; } });
+  const jointMeshes = new Map();
+  renderer.setAnimationLoop((t, frame) => {
+    if (frame && hitSource) { const hits = frame.getHitTestResults(hitSource); const ref = renderer.xr.getReferenceSpace(); if (hits.length) { reticle.visible = true; reticle.matrix.fromArray(hits[0].getPose(ref).transform.matrix); } else reticle.visible = false; }
+    if (frame) for (const src of session.inputSources) if (src.hand) for (const [name, space] of src.hand) { const pose = frame.getJointPose(space, renderer.xr.getReferenceSpace()); if (!pose) continue; const key = src.handedness + name; let m = jointMeshes.get(key); if (!m) { m = new THREE.Mesh(new THREE.SphereGeometry(0.006), new THREE.MeshBasicMaterial({ color: 0xffffff })); joints.add(m); jointMeshes.set(key, m); } m.position.set(pose.transform.position.x, pose.transform.position.y, pose.transform.position.z); }
+    renderer.render(scene, camera);
+  });
+  setTimeout(post, 8000);
+};
+function post() { fetch('/api/diag', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(r) }).catch(() => {}); }
+</script></body></html>

@@ -1,0 +1,6 @@
+#!/bin/sh
+# Fast guard before a push: the sandbox must not reference any harness file, and must type-check.
+# The full standalone check (build, tests, smoke) runs in CI: npm run check-standalone
+node scripts/check-standalone.mjs --lint-only || exit 1
+npm run check || exit 1
+exit 0

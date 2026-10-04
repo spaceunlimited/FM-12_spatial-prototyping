@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#000000" />
+    <title>XR sandbox</title>
+    <link rel="stylesheet" href="/src/base.css" />
+  </head>
+  <body>
+    <div id="app">
+      <video id="camera-feed" playsinline muted autoplay></video>
+      <canvas id="scene"></canvas>
+      <div id="overlay"></div>
+    </div>
+    <script type="module" src="/src/experience/main.ts"></script>
+  </body>
+</html>

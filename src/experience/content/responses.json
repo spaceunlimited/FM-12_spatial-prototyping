@@ -1,0 +1,5 @@
+{
+  "hello": ["Hi there! I am the fake AI. Tap me again and I will say something else.", "Hello again. Still fake, still friendly."],
+  "/what|which|how/": "Good question. In this demo I only know a few lines, but you can teach me more in content/responses.json.",
+  "*": "I did not catch that. Try saying hello."
+}

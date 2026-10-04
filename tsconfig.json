@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client", "@types/three"],
+    "strict": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@blocks": ["src/blocks/index.ts"],
+      "@blocks/*": ["src/blocks/*"]
+    }
+  },
+  "include": ["src", "server", "vite.config.ts"],
+  "exclude": ["src/runtime/vendor/_pending"]
+}
